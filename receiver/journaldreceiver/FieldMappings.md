@@ -7,8 +7,18 @@
 
 <!-- TODO: check mappings -->
 
-| Journald alert level | Journald alert level description | OTel severity | OTel severity description | OTel severity text |
-|----------------------|----------------------------------|---------------|---------------------------|--------------------|
+Journald `PRIORITY` field represents the message severity according to [RFC5424 6.2.1](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1).
+
+| Journald priority | Journald priority description | OTel severity | OTel severity description | OTel severity text |
+|-------------------|-------------------------------|---------------|---------------------------|--------------------|
+| `0`               | Emergency: system is unusable |               |                           |                    |
+| `1`               | Alert: action must be taken immediately |     |                           |                    |
+| `2`               | Critical: critical conditions |               |                           |                    |
+| `3`               | Error: error conditions       |               |                           |                    |
+| `4`               | Warning: warning conditions   |               |                           |                    |
+| `5`               | Notice: normal but significant condition |    |                           |                    |
+| `6`               | Informational: informational messages |       |                           |                    |
+| `7`               | Debug: debug-level messages   |               |                           |                    |
 
 ## Log fields
 
