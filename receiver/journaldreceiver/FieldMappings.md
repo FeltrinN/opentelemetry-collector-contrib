@@ -5,20 +5,18 @@
 
 ## Alerting levels
 
-<!-- TODO: check mappings -->
+Journald `PRIORITY` field represents the message severity according to the Syslog protocol ([RFC5424 6.2.1](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1)). Mappings for this protocol are already defined in the [Logs Data Model Appendix B](https://opentelemetry.io/docs/specs/otel/logs/data-model-appendix/#appendix-b-severitynumber-example-mappings).
 
-Journald `PRIORITY` field represents the message severity according to [RFC5424 6.2.1](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1).
-
-| Journald priority | Journald priority description | OTel severity | OTel severity description | OTel severity text |
-|-------------------|-------------------------------|---------------|---------------------------|--------------------|
-| `0`               | Emergency: system is unusable |               |                           |                    |
-| `1`               | Alert: action must be taken immediately |     |                           |                    |
-| `2`               | Critical: critical conditions |               |                           |                    |
-| `3`               | Error: error conditions       |               |                           |                    |
-| `4`               | Warning: warning conditions   |               |                           |                    |
-| `5`               | Notice: normal but significant condition |    |                           |                    |
-| `6`               | Informational: informational messages |       |                           |                    |
-| `7`               | Debug: debug-level messages   |               |                           |                    |
+| Journald priority | Journald priority description | OTel SeverityText | OTel SeverityNumber   |
+|-------------------|-------------------------------|-------------------|-----------------------|
+| `0`               | Emergency: system is unusable | `Emergency`       | `21` (FATAL)          |
+| `1`               | Alert: action must be taken immediately | `Alert` | `19` (ERROR3)         |
+| `2`               | Critical: critical conditions | `Critical`        | `18` (ERROR2)         |
+| `3`               | Error: error conditions       | `Error`           | `17` (ERROR)          |
+| `4`               | Warning: warning conditions   | `Warning`         | `13` (WARN)           |
+| `5`               | Notice: normal but significant condition | `Notice` | `10` (INFO2)        |
+| `6`               | Informational: informational messages | `Informational` | `9` (INFO)      |
+| `7`               | Debug: debug-level messages   | `Debug`           | `5` (DEBUG)           |
 
 ## Log fields
 
