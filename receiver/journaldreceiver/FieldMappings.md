@@ -36,9 +36,9 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 | `MESSAGE`      | The human-readable message string for this entry. This is supposed to be the primary text shown to the user. | | |
 | `MESSAGE_ID`   | A 128-bit message identifier ID for recognizing certain message types, if this is desirable. | | |
 | `PRIORITY`     | A priority value between 0 ("emerg") and 7 ("debug") formatted as a decimal string. This field is compatible with syslog's priority concept. | | |
-| `CODE_FILE`    | The code location generating this message, if known. Contains the source filename. | | |
-| `CODE_LINE`    | The code location generating this message, if known. Contains the source line number. | | |
-| `CODE_FUNC`    | The code location generating this message, if known. Contains the source function. | | |
+| `CODE_FILE`    | The code location generating this message, if known. Contains the source filename. | Attributes.[code.filepath][GenAttrSemConv] | The source code file name that identifies the code unit as uniquely as possible (preferably an absolute file path). |
+| `CODE_LINE`    | The code location generating this message, if known. Contains the source line number. | Attributes.[code.lineno][GenAttrSemConv] | The line number in `code.filepath` best representing the operation. It SHOULD point within the code unit named in `code.function`. |
+| `CODE_FUNC`    | The code location generating this message, if known. Contains the source function. | Attributes.[code.function][GenAttrSemConv] | The method or function name, or equivalent (usually rightmost part of the code unit's name). |
 | `ERRNO`        | The low-level Unix error number causing this entry, if any. | | |
 | `INVOCATION_ID` | A randomized, unique 128-bit ID identifying each runtime cycle of the unit. This is different from _SYSTEMD_INVOCATION_ID in that it is only used for messages coming from systemd code (e.g. logs from the system/user manager or from forked processes performing systemd-related setup). | | |
 | `USER_INVOCATION_ID` | A randomized, unique 128-bit ID identifying each runtime cycle of the unit. This is different from _SYSTEMD_INVOCATION_ID in that it is only used for messages coming from systemd code (e.g. logs from the system/user manager or from forked processes performing systemd-related setup). | | |
@@ -48,15 +48,15 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 | `SYSLOG_TIMESTAMP` | Syslog compatibility field containing the timestamp as specified in the original datagram. | | |
 | `SYSLOG_RAW`   | The original contents of the syslog line as received in the syslog datagram. This field is only included if the MESSAGE= field was modified compared to the original payload or the timestamp could not be located properly and is not included in SYSLOG_TIMESTAMP=. | | |
 | `DOCUMENTATION` | A documentation URL with further information about the topic of the log message. | | |
-| `TID`          | The numeric thread ID (TID) the log message originates from. | | |
+| `TID`          | The numeric thread ID (TID) the log message originates from. | Attributes.[thread.id][GenAttrSemConv] | Current "managed" thread ID (as opposed to OS thread ID). |
 | `UNIT`         | The name of a unit. Used by the system and user managers when logging about specific units. | | |
 | `USER_UNIT`    | The name of a unit. Used by the system and user managers when logging about specific units. | | |
-| `_PID`         | The process ID of the process the journal entry originates from formatted as a decimal string. | | |
+| `_PID`         | The process ID of the process the journal entry originates from formatted as a decimal string. | ResourceAttributes.[process.pid][ResProcSemConv] | Process identifier (PID). |
 | `_UID`         | The user ID of the process the journal entry originates from formatted as a decimal string. | | |
 | `_GID`         | The group ID of the process the journal entry originates from formatted as a decimal string. | | |
-| `_COMM`        | The name of the process the journal entry originates from. | | |
-| `_EXE`         | The executable path of the process the journal entry originates from. | | |
-| `_CMDLINE`     | The command line of the process the journal entry originates from. | | |
+| `_COMM`        | The name of the process the journal entry originates from. | ResourceAttributes.[process.executable.name][ResProcSemConv] | The name of the process executable. |
+| `_EXE`         | The executable path of the process the journal entry originates from. | ResourceAttributes.[process.executable.path][ResProcSemConv] | The full path to the process executable. |
+| `_CMDLINE`     | The command line of the process the journal entry originates from. | ResourceAttributes.[process.command_line][ResProcSemConv] | The full command used to launch the process as a single string representing the full command. |
 | `_CAP_EFFECTIVE` | The effective capabilities(7) of the process the journal entry originates from. | | |
 | `_AUDIT_SESSION` | The session of the process the journal entry originates from, as maintained by the kernel audit subsystem. | | |
 | `_AUDIT_LOGINUID` | The login UID of the process the journal entry originates from, as maintained by the kernel audit subsystem. | | |
@@ -72,7 +72,7 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 | `_BOOT_ID`     | The kernel boot ID for the boot the message was generated in. | | |
 | `_MACHINE_ID`  | The machine ID of the originating host. | | |
 | `_SYSTEMD_INVOCATION_ID` | The invocation ID for the runtime cycle of the unit the message was generated in. | | |
-| `_HOSTNAME`    | The name of the originating host. | | |
+| `_HOSTNAME`    | The name of the originating host. | ResourceAttributes.[host.name][ResHostSemConv] | Name of the host. |
 | `_TRANSPORT`   | How the entry was received by the journal service. | | |
 | `_STREAM_ID`   | Only applies to "_TRANSPORT=stdout" records: specifies a randomized 128-bit ID assigned to the stream connection when it was first created. | | |
 | `_LINE_BREAK`  | Only applies to "_TRANSPORT=stdout" records: indicates that the log message in the standard output/error stream was not terminated with a normal newline character ("\n", i.e. ASCII 10). | | |
@@ -103,3 +103,9 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 | `__MONOTONIC_TIMESTAMP` | The monotonic time (CLOCK_MONOTONIC) at the point in time the entry was received by the journal in microseconds, formatted as a decimal string. | | |
 | `__SEQNUM` | The sequence number of this journal entry in the journal file it originates from. | | |
 | `__SEQNUM_ID` | The sequence number number ID of this journal entry in the journal file it originates from. | | |
+
+<!-- Sources -->
+[GenAttrSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/attributes.md
+[LogsSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/logs.md
+[ResHostSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/resource/host.md
+[ResProcSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/resource/process.md
