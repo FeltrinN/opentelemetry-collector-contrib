@@ -1,6 +1,7 @@
 # Field Mappings
 
 *Warning 1*: This is an early draft to document how the native Journald fields are mapped in OTel. It is subject to changes and should not be considered stable in any form.
+
 *Warning 2*: These mappings are not currently implemented, but will be once a fist agreement on the sematics is reached.
 
 ## Alerting levels
@@ -9,14 +10,14 @@ Journald `PRIORITY` field represents the message severity according to the Syslo
 
 | Journald priority | Journald priority description | OTel SeverityText | OTel SeverityNumber   |
 |-------------------|-------------------------------|-------------------|-----------------------|
-| `0`               | Emergency: system is unusable | `Emergency`       | `21` (FATAL)          |
-| `1`               | Alert: action must be taken immediately | `Alert` | `19` (ERROR3)         |
-| `2`               | Critical: critical conditions | `Critical`        | `18` (ERROR2)         |
-| `3`               | Error: error conditions       | `Error`           | `17` (ERROR)          |
-| `4`               | Warning: warning conditions   | `Warning`         | `13` (WARN)           |
-| `5`               | Notice: normal but significant condition | `Notice` | `10` (INFO2)        |
-| `6`               | Informational: informational messages | `Informational` | `9` (INFO)      |
-| `7`               | Debug: debug-level messages   | `Debug`           | `5` (DEBUG)           |
+| `0`               | Emergency: system is unusable | `emerg`           | `21` (FATAL)          |
+| `1`               | Alert: action must be taken immediately | `alert` | `19` (ERROR3)         |
+| `2`               | Critical: critical conditions | `crit`            | `18` (ERROR2)         |
+| `3`               | Error: error conditions       | `err`             | `17` (ERROR)          |
+| `4`               | Warning: warning conditions   | `warning`         | `13` (WARN)           |
+| `5`               | Notice: normal but significant condition | `notice` | `10` (INFO2)        |
+| `6`               | Informational: informational messages | `info`    | `9` (INFO)      |
+| `7`               | Debug: debug-level messages   | `debug`           | `5` (DEBUG)           |
 
 <!-- TODO: consider adding facility mappings -->
 
@@ -26,13 +27,12 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 
 *Note*: in the table below the Journald descriptions have been amended for readability; refer to the source if more information is needed.
 
-<!-- TODO: check syslog for additional existing fields -->
 <!-- TODO: check ECS for additional existing fields -->
 <!-- TODO: check otel semantics guide for rules on defining new fields -->
 
 | Journald field | Journald description | OTel field | OTel description | Notes |
 |----------------|----------------------|------------|------------------|-------|
-| `MESSAGE`      | The human-readable message string for this entry. This is supposed to be the primary text shown to the user. | Body.[MESSAGE][LogsDataModelSemConv] | Description: A value containing the body of the log record (see the description of any type above). Can be for example a human-readable string message (including multi-line) describing the event in a free form or it can be a structured data composed of arrays and maps of other values. First-party Applications SHOULD use a string message. However, a structured body SHOULD be used to preserve the semantics of structured logs emitted by Third-party Applications. | |
+| `MESSAGE`      | The human-readable message string for this entry. This is supposed to be the primary text shown to the user. | Body.[MESSAGE][LogsDataModelSemConv], Attributes.[message][SyslogImplementation] | Description: A value containing the body of the log record (see the description of any type above). Can be for example a human-readable string message (including multi-line) describing the event in a free form or it can be a structured data composed of arrays and maps of other values. First-party Applications SHOULD use a string message. However, a structured body SHOULD be used to preserve the semantics of structured logs emitted by Third-party Applications. | |
 | `MESSAGE_ID`   | A 128-bit message identifier ID for recognizing certain message types, if this is desirable. | | | New field required? |
 | `PRIORITY`     | A priority value between 0 ("emerg") and 7 ("debug") formatted as a decimal string. This field is compatible with syslog's priority concept. | [SeverityText and SeverityNumber][LogsDataModelSemConv] | Severity Text (also known as log level). This is the original string representation of the severity as it is known at the source. / Severity Number numerical value of the severity, normalized to values described in this document. | See [Alerting levels](#alerting-levels) |
 | `CODE_FILE`    | The code location generating this message, if known. Contains the source filename. | Attributes.[code.filepath][GenAttrSemConv] | The source code file name that identifies the code unit as uniquely as possible (preferably an absolute file path). |
@@ -41,11 +41,11 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 | `ERRNO`        | The low-level Unix error number causing this entry, if any. | Attributes.[error.type][AttrRegSemConv] | Describes a class of error the operation ended with. | We might want to use a custom attribute (e.g. error.type.unix) ensure that the numeric code is not confused with different numeric error codes |
 | `INVOCATION_ID` | A randomized, unique 128-bit ID identifying each runtime cycle of the unit. This is different from _SYSTEMD_INVOCATION_ID in that it is only used for messages coming from systemd code (e.g. logs from the system/user manager or from forked processes performing systemd-related setup). | | | Keep in body or custom field? |
 | `USER_INVOCATION_ID` | A randomized, unique 128-bit ID identifying each runtime cycle of the unit. This is different from _SYSTEMD_INVOCATION_ID in that it is only used for messages coming from systemd code (e.g. logs from the system/user manager or from forked processes performing systemd-related setup). | | | Keep in body or custom field? |
-| `SYSLOG_FACILITY` | Syslog compatibility field containing the facility (formatted as decimal string) as specified in the original datagram. | Attributes.facility | | Could not find docs, but this seems to be consistent with syslog collector |
-| `SYSLOG_IDENTIFIER` | Syslog compatibility field containing the identifier string (i.e. "tag") as specified in the original datagram. | | | Could not find docs, check syslog collector |
-| `SYSLOG_PID`   | Syslog compatibility field containing the client PID as specified in the original datagram. | Attributes.proc_id | | Could not find docs, but this seems to be consistent with syslog collector |
-| `SYSLOG_TIMESTAMP` | Syslog compatibility field containing the timestamp as specified in the original datagram. | | | Could not find docs, check syslog collector |
-| `SYSLOG_RAW`   | The original contents of the syslog line as received in the syslog datagram. This field is only included if the MESSAGE= field was modified compared to the original payload or the timestamp could not be located properly and is not included in SYSLOG_TIMESTAMP=. | | | Could not find docs, check syslog collector |
+| `SYSLOG_FACILITY` | Syslog compatibility field containing the facility (formatted as decimal string) as specified in the original datagram. | Attributes.[facility][SyslogImplementation] | | Could not find docs, but this seems to be consistent with syslog collector |
+| `SYSLOG_IDENTIFIER` | Syslog compatibility field containing the identifier string (i.e. "tag") as specified in the original datagram. | Attributes.[appname][SyslogImplementation] | | The "tag" is the application name part of the [syslog MSG](https://www.rfc-editor.org/rfc/rfc3164#section-4.1.3), which is redered as Appname by the [syslog parsing library](https://github.com/influxdata/go-syslog/blob/develop/README.md) currently in use |
+| `SYSLOG_PID`   | Syslog compatibility field containing the client PID as specified in the original datagram. | Attributes.[proc_id][SyslogImplementation] | | Could not find docs, but this seems to be consistent with syslog collector |
+| `SYSLOG_TIMESTAMP` | Syslog compatibility field containing the timestamp as specified in the original datagram. | | | The syslog collector uses this to calculate the OTel Timestamp (IIUC); it could be used to override the default OTel Timestamp when present (but not the OTel ObservedTimestamp) |
+| `SYSLOG_RAW`   | The original contents of the syslog line as received in the syslog datagram. This field is only included if the MESSAGE= field was modified compared to the original payload or the timestamp could not be located properly and is not included in SYSLOG_TIMESTAMP=. | Body.SYSLOG_RAW | | The syslog collector stores the original message as a string in Body, but the journald collector body is already structured data. |
 | `DOCUMENTATION` | A documentation URL with further information about the topic of the log message. | | |  Keep in body or custom field? |
 | `TID`          | The numeric thread ID (TID) the log message originates from. | Attributes.[thread.id][GenAttrSemConv] | Current "managed" thread ID (as opposed to OS thread ID). |
 | `UNIT`         | The name of a unit. Used by the system and user managers when logging about specific units. | | | Keep in body or custom field? |
@@ -110,3 +110,4 @@ Journald provides a well defined [set of log fields](https://www.freedesktop.org
 [LogsSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/logs.md
 [ResHostSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/resource/host.md
 [ResProcSemConv]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/resource/process.md
+[SyslogImplementation]: ../../pkg/stanza/operator/parser/syslog/syslog.go
